@@ -1,5 +1,5 @@
 <template>
-  <div class="addcat-container">
+  <div class="updatecat-container">
     <va-card style="padding: 0.75rem;width: 800px;">
      <div class="mb-2 d-flex">
        <div class="md-6">
@@ -70,8 +70,8 @@
             </div>
           </div>
       </div>
-       <va-button class="mt-1" @click="addCat">
-        Add Cat
+       <va-button class="mt-1" @click="updateCat">
+        Update Cat
       </va-button>
     </va-card>
   </div>
@@ -79,13 +79,10 @@
 
 <script>
 import axios from 'axios';
-import {mapState,mapActions} from 'vuex';
+import {useRoute} from 'vue-router';
 
 export default {
-  name:"VAddCat",
-  created(){
-    this.getUser();
-  },
+  name:"VUpdateCat",
   data(){
     return{
       newCat:{
@@ -99,39 +96,41 @@ export default {
   },
   setup(){
     const catApi = "http://localhost:8000";
-    const addCatApi = async (newCat) => {
+     const route=useRoute();
+    const id = route.params.id;
+
+    const updateCatApi = async (newCat) => {
+      console.log(id);
       try {
-        const res = await axios.post(catApi+'/cats/add',newCat);
+        const res = await axios.put(`${catApi}/cats/update/${id}`,newCat);
         if(res.data){
-          alert('Add cat successfully');
+          alert('Update cat successfully');
         }else
-          alert('Add cat error');
+          alert('Update cat error');
       } catch (error) {
         console.log(error);
       }
     }
     return {
-      addCatApi
+      updateCatApi
     }
   },
-  computed: mapState(['user']),
   methods: {
-    ...mapActions(['getUser']),
     setNewCat(e){
       this.newCat = {
         ...this.newCat,
         [`${e.target.name}`]: e.target.value,
       }
     },
-    addCat(){
-      this.addCatApi({...this.newCat,user:this.user});
+    updateCat(){
+      this.updateCatApi(this.newCat);
     }
   }
 }
 </script>
 
 <style>
-  .addcat-container{
+  .updatecat-container{
     height: 80vh;
     display: grid;
     place-items: center;

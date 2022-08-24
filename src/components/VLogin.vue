@@ -7,8 +7,8 @@
       @submit.prevent="handleSubmit"
     >
       <va-input
-        label="Username"
-        v-model="username"
+        label="Email"
+        v-model="email"
         :rules="[value => (value && value.length > 0) || 'Field is required']"
       />
 
@@ -38,17 +38,52 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { useRouter } from "vue-router";
+import {mapActions} from 'vuex';
+
 export default {
   data () {
     return {
       isPasswordVisible: false,
-      username: '',
+      email: '',
       password: '',
     }
   },
+  setup(){
+   const catApi = "http://localhost:8000";
+
+   const router = useRouter();
+
+   const login = async (loginData) => {
+      try {
+        console.log(loginData);
+        const res = await axios.post(catApi + "/login", loginData);
+          if (res.data) {
+              document.cookie = `token=${res.data.token}; expires=${res.data.expiresIn};`;
+              router.back();
+              document.location.assign('/');
+          }
+          alert(res.data.message);
+      } catch (error) {
+          console.log(error);
+      }
+    }
+
+    return {
+      login
+    }
+  },
+  computed:mapActions(['getUser']),
   methods: {
     handleSubmit () {
-      alert('-- form submit --')
+      const loginData = {
+          email: this.email,
+          password: this.password,
+      }
+      this.login(loginData);
+      this.email = '';
+      this.password = '';
     },
   },
 }

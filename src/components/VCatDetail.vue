@@ -33,17 +33,19 @@
               <span
                 style="color:'#888';font-weight: 500;"
               >
-                  {{cat.user.lastName}} {{cat.user.firstName}}
+                  {{`${cat.user.lastName} ${cat.user.firstName}`}}
               </span>
           </h4>
           <div>
               <span>
-                      <va-button color="info" gradient class="mr-4">
+                      <router-link :to="`/update/${cat.id}`">
+                        <va-button color="info" gradient class="mr-4" :disabled="user.email !== cat.user.email">
                           <va-icon name="edit"></va-icon>
                       </va-button>
+                      </router-link>
               </span>
               <span>
-                  <va-button color="danger" gradient>
+                  <va-button color="danger" gradient :disabled="user.email !== cat.user.email" @click="onClick">
                       <va-icon name="delete"></va-icon>
                   </va-button>
               </span>
@@ -61,10 +63,19 @@
 <script>
 import { ref } from 'vue';
 import axios from 'axios';
-import {useRoute} from 'vue-router'
+import {useRoute} from 'vue-router';
+import {mapActions,mapState} from 'vuex'
 
 export default {
   name: "VCatDetail",
+  created(){
+    this.getUser();
+  },
+  data(){
+    return {
+      showModal: false,
+    }
+  },
   setup(){
     const catApi = 'http://localhost:8000';
     const cat = ref([]);
@@ -77,6 +88,7 @@ export default {
         const res = await axios.get(catApi + `/cats/${id}`);
         if(res.data){
           cat.value = res.data;
+          console.log(cat.value);
         }else{
           console.log(res.data);
         }
@@ -86,10 +98,38 @@ export default {
     }
     getCat();
 
+    const deleteCat = async () => {
+      try {
+        const res = await axios.delete(`${catApi}/cats/delete/${id}`);
+        if(res.data.success) {
+          alert(res.data.message);
+          document.location.replace('/');
+        }else{
+          alert('something went wrong, please try again');
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     return {
-      cat
+      cat,
+      deleteCat,
     }
   },
+  computed:mapState(['user']),
+  methods:{...mapActions(['getUser']),
+  cancel(){
+    this.showModal = !this.showModal;
+  },
+  onClick(){
+    this.$vaModal.init({
+      message:'Are you sure want to delete this cat?',
+      onOk: this.deleteCat,
+      onCancel: this.cancel,
+    })
+  }
+  }
 }
 </script>
 

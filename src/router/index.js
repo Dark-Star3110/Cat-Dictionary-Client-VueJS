@@ -4,6 +4,7 @@ import VCatDetail from "../components/VCatDetail.vue";
 import NotFound from "../components/NotFound.vue";
 import VAddCat from "../components/VAddCat.vue";
 import VLogin from "../components/VLogin.vue";
+import VUpdateCat from "../components/VUpdateCat.vue";
 
 const routes = [
     {
@@ -25,6 +26,11 @@ const routes = [
         path: "/add-cat",
         name: "add-cat",
         component: VAddCat,
+    },
+    {
+        path: "/update/:id",
+        name: "cat-updtae",
+        component: VUpdateCat,
     },
     {
         path: "/:pathMatch(.*)*",
